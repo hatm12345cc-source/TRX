@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VN7 | الموقع الرسمي</title>
+    <style>
+        :root {
+            --bg: #050507;
+            --purple: #8e2de2;
+            --card: #0f0f13;
+            --accent: #00e5ff;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0; padding: 0;
+            text-align: center;
+        }
+
+        /* أنيميشن الرقص */
+        @keyframes dance {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        .dancing { animation: dance 3s ease-in-out infinite; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 5%; background: rgba(0,0,0,0.95);
+            border-bottom: 2px solid var(--purple);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        /* أيقونة القمرة الدائرية مثل RTX */
+        .menu-btn { 
+            width: 50px; 
+            height: 50px; 
+            cursor: pointer; 
+            border-radius: 50%; 
+            border: 2px solid var(--purple);
+            object-fit: cover;
+        }
+
+        .logo { font-size: 28px; font-weight: bold; }
+        .logo span { color: var(--purple); }
+
+        .container { max-width: 600px; margin: 20px auto; padding: 15px; }
+
+        .page { display: none; }
+        .active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .hero-btn {
+            background: #5865F2; display: block; padding: 20px;
+            border-radius: 15px; color: white; text-decoration: none;
+            font-weight: bold; font-size: 18px; margin-bottom: 20px;
+        }
+
+        .title-no-section {
+            color: var(--accent); font-size: 26px; margin: 40px 0 20px;
+            font-weight: bold; text-shadow: 0 0 10px var(--purple);
+        }
+
+        .card {
+            background: var(--card); border-radius: 20px; padding: 15px;
+            border: 1px solid #222; margin-bottom: 25px; text-align: right;
+        }
+
+        .card img { width: 100%; border-radius: 15px; margin-bottom: 12px; border: 1px solid #333; }
+
+        .btn-install {
+            display: block; padding: 15px; border-radius: 12px;
+            background: linear-gradient(90deg, #8e2de2, #4a00e0);
+            color: white; text-decoration: none; font-weight: bold;
+            margin-top: 10px; text-align: center; font-size: 18px;
+            transition: 0.3s;
+        }
+        
+        .btn-vn { background: linear-gradient(90deg, #00c6ff, #0072ff); margin-top: 5px; }
+
+        footer { padding: 30px; color: #444; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="https://raw.githubusercontent.com/hatm12345cc-source/TRX/refs/heads/main/IMG_1996.png" class="menu-btn dancing" onclick="toggleMenu()">
+    <div class="logo">V<span>N7</span></div>
+</header>
+
+<div class="container">
+    
+    <div id="home" class="page active">
+        <h1 class="title-no-section">VN7 الرئيسي</h1>
+        <img src="https://raw.githubusercontent.com/hatm12345cc-source/krnl/refs/heads/main/32327A28-AEE3-4C73-902C-C6C91EED9868.png" class="dancing" style="width:130px; border-radius:50%; margin-bottom:20px;">
+        <a href="https://discord.gg/haX59nFsM" class="hero-btn ">انضم لسيرفر ديسكورد VN7 الرسمي 👻</a>
+        <p style="color:#888;">اضغط على صورة القمرة فوق لفتح قائمة الهاكات</p>
+    </div>
+
+    <div id="hacks" class="page">
+        
+        <h2 class="title-no-section">(هاك الآيفون 🍎)</h2>
+        
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/VN7/refs/heads/main/IMG_1929.png" class="dancing">
+            <h3>Delta iOS</h3>
+            <a href="itms-services://?action=download-manifest&url=https://delta.bz/manifest.plist" class="btn-install">Install Delta</a>
+            <a href="https://nekoo.eu.org/W7dMvm" class="btn-install" style="background:#6a11cb;">Install Delta VR7</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/VN7/refs/heads/main/IMG_1935.jpeg" class="dancing">
+            <h3>SkibX iOS</h3>
+            <a href="itms-services://?action=download-manifest&url=https://skibx.com/ota.plist" class="btn-install">Install SkibX</a>
+        </div>
+
+        <h2 class="title-no-section">(هاك الأندرويد 🤖)</h2>
+        <img src="https://raw.githubusercontent.com/hatm12345cc-source/krnl/refs/heads/main/IMG_1949.jpeg" style="width:100%; border-radius:15px; margin-bottom:20px;" class="dancing">
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/VN7xxz/refs/heads/main/IMG_1987.jpeg" class="dancing">
+            <h3>JJSploit Android</h3>
+            <a href="https://www.mediafire.com/file/gqecdw99e5fyntq/JJSploit_64Bits-2.708.880.apk/file" class="btn-install">Install JJSploit</a>
+            <a href="https://www.mediafire.com/file/iuozigbm6coftwy/JJSploit_VNG_64Bits-2.707.735.apk/file" class="btn-install btn-vn">Install JJSploit VN</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/VN7/refs/heads/main/IMG_1929.png" class="dancing">
+            <h3>Delta Android</h3>
+            <a href="https://www.mediafire.com/file/ti5geyfey7thof9/Delta-2.707.734.apk/file" class="btn-install">Install Delta</a>
+            <a href="https://www.mediafire.com/file/d1yxz9dtr9vpk49/DELTAVN.apk/file" class="btn-install btn-vn">Install Delta VN</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/VN7/refs/heads/main/IMG_1935.jpeg" class="dancing">
+            <h3>SkibX Android</h3>
+            <a href="https://www.mediafire.com/file/khh1d18x0sbdfc6/SkibX-2.707.734.apk/file" class="btn-install">Install SkibX</a>
+            <a href="https://www.mediafire.com/file/z7vlijutetijzc4/SkibX+VN.apk/file" class="btn-install btn-vn">Install SkibX VN</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/krnl-vn/refs/heads/main/IMG_1899.jpeg" class="dancing">
+            <h3>Krnl VN</h3>
+            <a href="https://www.mediafire.com/file/zhvrz2elarw0y8y/Krnl+VN+new.apk/file" class="btn-install btn-vn">Install Krnl VN</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/krnl/refs/heads/main/IMG_1954.jpeg" class="dancing">
+            <h3>Codex Android</h3>
+            <a href="https://www.mediafire.com/file/80ue9v9kcdmnzhh/Codex+v2.708.apk/file" class="btn-install">Install Codex</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/delta-vn7/refs/heads/main/IMG_1956.jpeg" class="dancing">
+            <h3>Arceus X Neo</h3>
+            <a href="https://www.mediafire.com/file/5buplrts6jij7z5/Arceus+X+Neo+v2.0.5.apk/file" class="btn-install">Install Arceus X</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/delta-vn7/refs/heads/main/IMG_1960.jpeg" class="dancing">
+            <h3>Fluxus Android</h3>
+            <a href="https://www.mediafire.com/file/3yljs6ggohxnxfl/Fluxus+3.apk/file" class="btn-install">Install Fluxus</a>
+            <a href="https://www.mediafire.com/file/k9qeefep336nmvu/FluxusZ+VN.apk/file" class="btn-install btn-vn">Install Fluxus VN</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/delta-vn7/refs/heads/main/IMG_1962.jpeg" class="dancing">
+            <h3>Cryptic Android</h3>
+            <a href="https://www.mediafire.com/file/2cw9hn5kg5x1vk1/Cryptic.2.689.CrypticExecutor.com+[rtxtop1].apk/file" class="btn-install">Install Cryptic</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/delta-vn7/refs/heads/main/IMG_1963.jpeg" class="dancing">
+            <h3>Trigon Android</h3>
+            <a href="https://www.mediafire.com/file/38mfn2dhkiqgk70/Trigon_2.708.880.apk/file" class="btn-install">Install Trigon</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/delta-vn7/refs/heads/main/IMG_1966.jpeg" class="dancing">
+            <h3>Ronix Android</h3>
+            <a href="https://www.mediafire.com/file/2351k8zxkpqpc9m/Ronix_64Bits-2.707.734.apk/file" class="btn-install">Install Ronix</a>
+            <a href="https://www.mediafire.com/file/nbtvn8zkrbodv5r/Ronix_VN.apk/file" class="btn-install btn-vn">Install Ronix VN</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/delta-vn7/refs/heads/main/IMG_1968.jpeg" class="dancing">
+            <h3>Vega X</h3>
+            <a href="https://www.mediafire.com/file/a1xkbytour4xksc/Vega.X+8.apk/file" class="btn-install">Install Vega X</a>
+        </div>
+
+        <h2 class="title-no-section">(هاك الكمبيوتر 💻)</h2>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/SKINA/refs/heads/main/IMG_1972.jpeg" class="dancing">
+            <h3>Pro Hacker PC</h3>
+            <a href="https://gofile.io/d/6npfj8" class="btn-install">Install Pro Hacker</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/SKINA/refs/heads/main/IMG_1973.jpeg" class="dancing">
+            <h3>Xeno PC</h3>
+            <a href="https://www.mediafire.com/file/u767iu4khrmwjj3/Xeno-v1.3.20.zip/file" class="btn-install">Install Xeno</a>
+        </div>
+
+        <div class="card">
+            <img src="https://raw.githubusercontent.com/hatm12345cc-source/delta-vn7/refs/heads/main/IMG_1963.jpeg" class="dancing">
+            <h3>Trigon PC</h3>
+            <a href="https://www.mediafire.com/file/mbavimp9zr0s3gm/Trigon+PC+Fixer.exe/file" class="btn-install">Install Trigon Fixer</a>
+        </div>
+
+    </div>
+</div>
+
+<footer>VN7 511 | جميع الحقوق محفوظة لأبوعتب © 2026</footer>
+
+<script>
+    function toggleMenu() {
+        const home = document.getElementById('home');
+        const hacks = document.getElementById('hacks');
+        if (home.style.display !== 'none') {
+            home.style.display = 'none';
+            hacks.style.display = 'block';
+            hacks.classList.add('active');
+        } else {
+            hacks.style.display = 'none';
+            home.style.display = 'block';
+            home.classList.add('active');
+        }
+    }
+</script>
+</body>
+</html>
