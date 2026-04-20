@@ -1,0 +1,573 @@
+-- TRX | HUB TEAM : The Mercy script 💎 - V31 [RECTANGLE EDITION]
+-- [ تم التعديل: توحيد حجم زر الهيدلس مع زر التنقل + نظام حماية TRX الحصري ]
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+
+-- [ نظام منع التكرار والطرد ]
+_G.ScriptExecutionCount = _G.ScriptExecutionCount or 0
+_G.BokaProtection = _G.BokaProtection or false 
+
+if game.CoreGui:FindFirstChild("BOKA_HUB_RESTORED") then
+    _G.ScriptExecutionCount = _G.ScriptExecutionCount + 1
+    
+    local function SendSystemNotify(title, text)
+        pcall(function()
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = title, 
+                Text = text, 
+                Duration = 5
+            })
+        end)
+    end
+
+    if _G.ScriptExecutionCount >= 6 then
+        Player:Kick("سبام")
+        return
+    else
+        SendSystemNotify("Syteam TRX | HUB", "السكربت شغال بالفعل انتبه تكرره بيطردك ")
+        return 
+    end
+end
+
+local Mouse = Player:GetMouse()
+local BokaIcon = "rbxthumb://120871746789137"
+
+local BombSupportedMaps = {
+    [116635984204928] = true,
+    [122739642341121] = true,
+    [71907075288481] = true,
+    [108510324185678] = true,
+    [11379739543] = true,
+    [120920474420629] = true
+}
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local TextChatService = game:GetService("TextChatService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
+local HttpService = game:GetService("HttpService")
+
+_G.CustomSpeed = 16
+_G.CustomJump = 50
+_G.Noclip = false
+_G.InfJump = false
+_G.GhostMode = false
+_G.LastTargetName = "" 
+
+local function MakeRound(obj, amount)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, amount or 8)
+    corner.Parent = obj
+end
+
+-- وظيفة لإضافة حواف حمراء غامقة للصور
+local function AddDarkRedStroke(obj)
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = 2
+    stroke.Color = Color3.fromRGB(150, 0, 0) -- أحمر غامق
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Parent = obj
+end
+
+local function PlayLoudNotify()
+    local Sound = Instance.new("Sound")
+    Sound.SoundId = "rbxassetid://120871746789137"
+    Sound.Volume = 2
+    Sound.Parent = SoundService
+    Sound:Play()
+    game:GetService("Debris"):AddItem(Sound, 2)
+end
+
+local function PlayLuxurySound()
+    local Sound = Instance.new("Sound")
+    Sound.SoundId = "rbxassetid://120871746789137" 
+    Sound.Volume = 3
+    Sound.Parent = SoundService
+    Sound:Play()
+    game:GetService("Debris"):AddItem(Sound, 2)
+end
+
+local function SendBokaNotify(title, text, icon)
+    PlayLoudNotify()
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = title, 
+            Text = text, 
+            Icon = icon,
+            Duration = 8
+        })
+    end)
+end
+
+task.spawn(function()
+    PlayLuxurySound()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "TRX SUPPORT", 
+        Text = "TRX  SUPPORT THE MERCY SCRIPT\nTEAM BOKA", 
+        Duration = 10
+    })
+end)
+
+if BombSupportedMaps[game.PlaceId] then
+    task.spawn(function()
+        task.wait(2)
+        SendBokaNotify("تنبيه", "ملاحظ ان السكربت يدعم هذا الماب وفي مميزات غيرها شوفها ", BokaIcon)
+    end)
+end
+
+for _, v in pairs(game.CoreGui:GetChildren()) do
+    if v.Name == "BOKA_HUB_RESTORED" then v:Destroy() end
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BOKA_HUB_RESTORED"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
+
+local GhostBtn = Instance.new("ImageButton")
+GhostBtn.Size = UDim2.new(0, 35, 0, 35) 
+GhostBtn.Position = UDim2.new(0, 10, 0.5, -22)
+GhostBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0) 
+GhostBtn.Image = "rbxthumb://120871746789137"
+GhostBtn.ZIndex = 100
+GhostBtn.Parent = ScreenGui
+MakeRound(GhostBtn, 100) 
+AddDarkRedStroke(GhostBtn)
+
+-- [ نظام تحريك الزر ]
+local dragging, dragInput, dragStart, startPos
+local function update(input)
+    local delta = input.Position - dragStart
+    GhostBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+GhostBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = GhostBtn.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+GhostBtn.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then update(input) end
+end)
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 550, 0, 330)
+MainFrame.Position = UDim2.new(0, -600, 0, -400) 
+MainFrame.BackgroundColor3 = Color3.fromRGB(40, 0, 0); MainFrame.Active = true; MainFrame.Draggable = true; MainFrame.Parent = ScreenGui; MakeRound(MainFrame, 10)
+local MainStroke = Instance.new("UIStroke"); MainStroke.Thickness = 2; MainStroke.Color = Color3.fromRGB(255, 0, 0); MainStroke.Parent = MainFrame
+
+TweenService:Create(MainFrame, TweenInfo.new(1.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -275, 0.5, -165)}):Play()
+
+local PlayerCountLabel = Instance.new("TextLabel")
+PlayerCountLabel.Size = UDim2.new(0, 100, 0, 30); PlayerCountLabel.Position = UDim2.new(0, 10, 0, 5); PlayerCountLabel.BackgroundTransparency = 1; PlayerCountLabel.TextColor3 = Color3.fromRGB(0, 255, 0); PlayerCountLabel.Font = Enum.Font.GothamBold; PlayerCountLabel.TextSize = 14; PlayerCountLabel.Parent = MainFrame
+task.spawn(function()
+    while task.wait(1) do PlayerCountLabel.Text = #Players:GetPlayers() .. " 🟢" end
+end)
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, -10, 0, 30); TitleLabel.Position = UDim2.new(0, 110, 0, 5); TitleLabel.Text = "BOKA TEAM : The Mercy script 💎"; TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255); TitleLabel.Font = Enum.Font.GothamBold; TitleLabel.TextSize = 14; TitleLabel.TextXAlignment = Enum.TextXAlignment.Left; TitleLabel.BackgroundTransparency = 1; TitleLabel.Parent = MainFrame
+
+local TabBar = Instance.new("Frame"); TabBar.Size = UDim2.new(0, 120, 1, -50); TabBar.Position = UDim2.new(0, 10, 0, 40); TabBar.BackgroundColor3 = Color3.fromRGB(80, 0, 0); TabBar.Parent = MainFrame; MakeRound(TabBar, 8)
+local TabListConfig = Instance.new("UIListLayout"); TabListConfig.SortOrder = Enum.SortOrder.LayoutOrder; TabListConfig.Padding = UDim.new(0, 8); TabListConfig.Parent = TabBar
+local TabPadding = Instance.new("UIPadding"); TabPadding.PaddingTop = UDim.new(0, 10); TabPadding.PaddingLeft = UDim.new(0, 5); TabPadding.PaddingRight = UDim.new(0, 5); TabPadding.Parent = TabBar
+
+local function CreateTabBtn(text, order)
+    local btn = Instance.new("TextButton"); btn.Size = UDim2.new(1, 0, 0, 35); btn.Text = text; btn.TextColor3 = Color3.fromRGB(255, 255, 255); btn.Font = Enum.Font.GothamBold; btn.TextSize = 12; btn.BackgroundColor3 = Color3.fromRGB(120, 0, 0); btn.LayoutOrder = order; btn.Parent = TabBar; MakeRound(btn, 6); return btn
+end
+
+local HomeTabBtn = CreateTabBtn("القائمة الرئيسية", 0)
+local MainTabBtn = CreateTabBtn("الاستهداف", 1)
+local PlayerTabBtn = CreateTabBtn("اللاعب", 2)
+local TrollTabBtn = CreateTabBtn("التخريب", 3)
+local RewardsTabBtn = CreateTabBtn("جوائز", 4)
+local OtherTabBtn = CreateTabBtn("أخرى", 5)
+
+local ContentFrame = Instance.new("Frame"); ContentFrame.Size = UDim2.new(1, -150, 1, -50); ContentFrame.Position = UDim2.new(0, 140, 0, 40); ContentFrame.BackgroundTransparency = 1; ContentFrame.Parent = MainFrame
+
+local HomeContent = Instance.new("ScrollingFrame"); local MainContent = Instance.new("ScrollingFrame"); local PlayerContent = Instance.new("ScrollingFrame"); local TrollContent = Instance.new("ScrollingFrame"); local OtherContent = Instance.new("ScrollingFrame"); local RewardsContent = Instance.new("ScrollingFrame")
+for _, cf in pairs({HomeContent, MainContent, PlayerContent, TrollContent, OtherContent, RewardsContent}) do cf.Size = UDim2.new(1, 0, 1, 0); cf.BackgroundTransparency = 1; cf.ScrollBarThickness = 2; cf.Parent = ContentFrame; cf.Visible = false; cf.CanvasSize = UDim2.new(0, 0, 0, 750) end
+HomeContent.Visible = true
+
+local RewardList = Instance.new("UIListLayout"); RewardList.Parent = RewardsContent; RewardList.HorizontalAlignment = Enum.HorizontalAlignment.Center; RewardList.Padding = UDim.new(0, 15)
+local RewardPadding = Instance.new("UIPadding"); RewardPadding.PaddingTop = UDim.new(0, 20); RewardPadding.Parent = RewardsContent
+
+local LargeText = Instance.new("TextLabel")
+LargeText.Size = UDim2.new(0.9, 0, 0, 60); LargeText.Text = "نحنا نوزع جوائز في الدس روح وحط الكود فوق 👆"; LargeText.TextColor3 = Color3.fromRGB(255, 255, 255); LargeText.Font = Enum.Font.GothamBold; LargeText.TextSize = 18; LargeText.TextWrapped = true; LargeText.BackgroundTransparency = 1; LargeText.Parent = RewardsContent
+
+local CodeBox = Instance.new("TextBox")
+CodeBox.Size = UDim2.new(0, 250, 0, 45); CodeBox.PlaceholderText = "ادخل الكود…"; CodeBox.Text = ""; CodeBox.TextColor3 = Color3.fromRGB(255, 255, 255); CodeBox.BackgroundColor3 = Color3.fromRGB(100, 0, 0); CodeBox.Font = Enum.Font.GothamBold; CodeBox.TextSize = 16; CodeBox.Parent = RewardsContent; MakeRound(CodeBox, 8)
+
+local RewardNotice = Instance.new("TextLabel")
+RewardNotice.Size = UDim2.new(0.9, 0, 0, 40); RewardNotice.Text = ""; RewardNotice.TextColor3 = Color3.fromRGB(255, 255, 0); RewardNotice.Font = Enum.Font.GothamBold; RewardNotice.TextSize = 14; RewardNotice.BackgroundTransparency = 1; RewardNotice.Parent = RewardsContent
+
+CodeBox.FocusLost:Connect(function(enter)
+    if enter then
+        if CodeBox.Text == "BOKA431" then
+            CodeBox.Text = ""
+            RewardNotice.Text = "الجائزة : سكن خثيث اكتب بالشات ;char me crazydalejr"
+            SendBokaNotify("مبروك!", "تم تفعيل الكود بنجاح")
+            task.spawn(function() for i = 50, 1, -1 do task.wait(1) end RewardNotice.Text = "" end)
+        elseif CodeBox.Text == "BOKA450" then
+            CodeBox.Text = ""
+            _G.BokaProtection = true
+            SendBokaNotify("الاشتراك", "أنت الآن محمي من صاحب السكربت")
+            task.wait(1)
+            SendBokaNotify("تنبيه مهم جداً", "ترا انت محمي من السكربت ذا فقط اي سكربت ثاني مثلاً  يقدر يستهدفك للأسف وحنا قاعدين نسوي صيانه للحماية من السكربتات ⚠️")
+            RewardNotice.Text = "الحماية مفعلة ضد هذا السكربت ✅"
+        else
+            SendBokaNotify("خطأ", "الكود غير صحيح")
+            CodeBox.Text = ""
+        end
+    end
+end)
+
+local function CreateToggleBtn(text, y, parent)
+    local frame = Instance.new("Frame"); frame.Size = UDim2.new(1, -10, 0, 40); frame.Position = UDim2.new(0, 5, 0, y); frame.BackgroundColor3 = Color3.fromRGB(90, 0, 0); frame.Parent = parent; MakeRound(frame, 6)
+    local b = Instance.new("TextButton"); b.Size = UDim2.new(1, -50, 1, 0); b.Position = UDim2.new(0, 0, 0, 0); b.Text = text; b.TextColor3 = Color3.fromRGB(255, 255, 255); b.Font = Enum.Font.GothamBold; b.TextSize = 12; b.TextXAlignment = Enum.TextXAlignment.Left; b.BackgroundTransparency = 1; b.Parent = frame; local p = Instance.new("UIPadding"); p.PaddingLeft = UDim.new(0, 10); p.Parent = b
+    local stat = Instance.new("TextLabel"); stat.Size = UDim2.new(0, 30, 0, 30); stat.Position = UDim2.new(1, -35, 0.5, -15); stat.Text = "🔴"; stat.BackgroundTransparency = 1; stat.Font = Enum.Font.GothamBold; stat.TextSize = 18; stat.Parent = frame
+    return b, stat, frame
+end
+
+local function CreateActionBtn(text, y, parent, width)
+    local b = Instance.new("TextButton"); b.Size = UDim2.new(width or 0.45, 0, 0, 35); b.Position = UDim2.new(0, 5, 0, y); b.Text = text; b.TextColor3 = Color3.fromRGB(255, 255, 255); b.Font = Enum.Font.GothamBold; b.TextSize = 11; b.BackgroundColor3 = Color3.fromRGB(150, 0, 0); b.Parent = parent; MakeRound(b, 6); return b
+end
+
+local function AddMapHint(parentFrame)
+    local hint = Instance.new("TextLabel"); hint.Size = UDim2.new(0, 80, 0, 20); hint.Position = UDim2.new(1, -120, 0.5, -10); hint.Text = "ماب القنبلة"; hint.TextColor3 = Color3.fromRGB(0, 255, 0); hint.Font = Enum.Font.GothamBold; hint.TextSize = 11; hint.BackgroundTransparency = 1; hint.ZIndex = 5; hint.Parent = parentFrame
+end
+
+local HomeUIList = Instance.new("UIListLayout"); HomeUIList.Parent = HomeContent; HomeUIList.HorizontalAlignment = Enum.HorizontalAlignment.Center; HomeUIList.Padding = UDim.new(0, 12)
+local WelcomeLabel = Instance.new("TextLabel"); WelcomeLabel.Size = UDim2.new(1, 0, 0, 40); WelcomeLabel.Text = "مساء النور @"..Player.Name; WelcomeLabel.TextColor3 = Color3.fromRGB(255, 255, 255); WelcomeLabel.Font = Enum.Font.GothamBold; WelcomeLabel.TextSize = 24; WelcomeLabel.BackgroundTransparency = 1; WelcomeLabel.Parent = HomeContent
+local UserImg = Instance.new("ImageLabel"); UserImg.Size = UDim2.new(0, 70, 0, 70); UserImg.Image = "rbxthumb://type=AvatarHeadShot&id="..Player.UserId.."&w=150&h=150"; UserImg.Parent = HomeContent; MakeRound(UserImg, 35); AddDarkRedStroke(UserImg)
+local HideInstruction = Instance.new("TextLabel"); HideInstruction.Size = UDim2.new(1, 0, 0, 25); HideInstruction.Text = "اضغط [ F ] لإخفاء الواجهة"; HideInstruction.TextColor3 = Color3.fromRGB(200, 200, 200); HideInstruction.Font = Enum.Font.GothamBold; HideInstruction.TextSize = 20; HideInstruction.BackgroundTransparency = 1; HideInstruction.Parent = HomeContent
+local StatusLabel = Instance.new("TextLabel"); StatusLabel.Size = UDim2.new(1, 0, 0, 25); StatusLabel.Text = "حالة الاشتراك : User Free"; StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255); StatusLabel.Font = Enum.Font.GothamBold; StatusLabel.TextSize = 20; StatusLabel.BackgroundTransparency = 1; StatusLabel.Parent = HomeContent
+local InviteLabel = Instance.new("TextLabel"); InviteLabel.Size = UDim2.new(1, 0, 0, 25); InviteLabel.Text = "للاشتراك تفضل الديسكورد BOKA"; InviteLabel.TextColor3 = Color3.fromRGB(255, 255, 255); InviteLabel.Font = Enum.Font.GothamBold; InviteLabel.TextSize = 20; InviteLabel.BackgroundTransparency = 1; InviteLabel.Parent = HomeContent
+
+-- [[ مربع المطورين - تم وضعه هنا ليكون تحت العبارة مع مسافة ]]
+local DevBox = Instance.new("Frame")
+DevBox.Name = "DeveloperBox"
+DevBox.Size = UDim2.new(0.85, 0, 0, 180) 
+DevBox.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+DevBox.Parent = HomeContent 
+MakeRound(DevBox, 10)
+local DevStroke = Instance.new("UIStroke"); DevStroke.Thickness = 2; DevStroke.Color = Color3.fromRGB(255, 0, 0); DevStroke.Parent = DevBox
+
+local DevTitle = Instance.new("TextLabel")
+DevTitle.Size = UDim2.new(0, 100, 0, 25)
+DevTitle.Position = UDim2.new(1, -110, 0, 5) 
+DevTitle.Text = "مطورين السكربت"
+DevTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+DevTitle.Font = Enum.Font.GothamBold
+DevTitle.TextSize = 12
+DevTitle.BackgroundTransparency = 1
+DevTitle.Parent = DevBox
+
+local DevIcon = Instance.new("ImageLabel")
+DevIcon.Size = UDim2.new(0, 80, 0, 80)
+DevIcon.Position = UDim2.new(0.5, -40, 0.5, -30) 
+DevIcon.Image = "rbxthumb://120871746789137"
+DevIcon.BackgroundTransparency = 1
+DevIcon.Parent = DevBox
+MakeRound(DevIcon, 40)
+AddDarkRedStroke(DevIcon)
+
+local TeamName = Instance.new("TextLabel")
+TeamName.Size = UDim2.new(1, 0, 0, 25)
+TeamName.Position = UDim2.new(0, 0, 0, 15) 
+TeamName.Text = "TRX | HUB 🇸🇦"
+TeamName.TextColor3 = Color3.fromRGB(255, 255, 255)
+TeamName.Font = Enum.Font.GothamBold
+TeamName.TextSize = 16
+TeamName.BackgroundTransparency = 1
+TeamName.Parent = DevBox
+
+local DevName = Instance.new("TextButton")
+DevName.Size = UDim2.new(1, 0, 0, 25)
+DevName.Position = UDim2.new(0, 0, 0.5, 55) 
+DevName.Text = "@fx3we4"
+DevName.TextColor3 = Color3.fromRGB(0, 170, 255) 
+DevName.Font = Enum.Font.GothamBold
+DevName.TextSize = 14
+DevName.BackgroundTransparency = 1
+DevName.Parent = DevBox
+
+DevName.MouseButton1Click:Connect(function()
+    setclipboard("@TRX")
+    SendBokaNotify("Syteam TRX | HUB", "تم نسخ يوزر المطور")
+end)
+
+local DevRole = Instance.new("TextLabel")
+DevRole.Size = UDim2.new(1, 0, 0, 20)
+DevRole.Position = UDim2.new(0, 0, 0.5, 75) 
+DevRole.Text = "مطور السكربت"
+DevRole.TextColor3 = Color3.fromRGB(200, 200, 200)
+DevRole.Font = Enum.Font.GothamBold
+DevRole.TextSize = 12
+DevRole.BackgroundTransparency = 1
+DevRole.Parent = DevBox
+
+-- زر الديسكورد في الأسفل
+local DiscordButton = Instance.new("TextButton"); DiscordButton.Size = UDim2.new(0, 200, 0, 40); DiscordButton.Text = "نسخ رابط الديسكورد"; DiscordButton.Font = Enum.Font.GothamBold; DiscordButton.TextSize = 18; DiscordButton.BackgroundColor3 = Color3.fromRGB(110, 0, 0); DiscordButton.TextColor3 = Color3.fromRGB(255, 255, 255); DiscordButton.Parent = HomeContent; MakeRound(DiscordButton, 6)
+DiscordButton.MouseButton1Click:Connect(function() setclipboard(مايحتاج لان مافي تكت); SendBokaNotify("System BOKA", "تم نسخ رابط الديسكورد تنورنا هناك | تم اصلاح مشكلة الدس 💡") end)
+
+local TargetBox = Instance.new("Frame"); TargetBox.Size = UDim2.new(1, -10, 0, 100); TargetBox.Position = UDim2.new(0, 5, 0, 5); TargetBox.BackgroundColor3 = Color3.fromRGB(90, 0, 0); TargetBox.Parent = MainContent; MakeRound(TargetBox, 8)
+local PlayerImage = Instance.new("ImageLabel"); PlayerImage.Size = UDim2.new(0, 80, 0, 80); PlayerImage.Position = UDim2.new(0, 10, 0, 10); PlayerImage.BackgroundColor3 = Color3.fromRGB(70, 0, 0); PlayerImage.Parent = TargetBox; MakeRound(PlayerImage, 6); AddDarkRedStroke(PlayerImage)
+local TargetNameLabel = Instance.new("TextLabel"); TargetNameLabel.Size = UDim2.new(1, -110, 0, 20); TargetNameLabel.Position = UDim2.new(0, 100, 0, 15); TargetNameLabel.Text = "---"; TargetNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255); TargetNameLabel.Font = Enum.Font.GothamBold; TargetNameLabel.TextXAlignment = Enum.TextXAlignment.Left; TargetNameLabel.BackgroundTransparency = 1; TargetNameLabel.Parent = TargetBox
+local TargetDateLabel = Instance.new("TextLabel"); TargetDateLabel.Size = UDim2.new(1, -110, 0, 20); TargetDateLabel.Position = UDim2.new(0, 100, 0, 40); TargetDateLabel.Text = "تاريخ الانضمام: -- / -- / --"; TargetDateLabel.TextColor3 = Color3.fromRGB(180, 180, 180); TargetDateLabel.Font = Enum.Font.Gotham; TargetDateLabel.TextXAlignment = Enum.TextXAlignment.Left; TargetDateLabel.BackgroundTransparency = 1; TargetDateLabel.Parent = TargetBox
+local TargetInput = Instance.new("TextBox"); TargetInput.Size = UDim2.new(0, 150, 0, 30); TargetInput.Position = UDim2.new(0, 100, 0, 65); TargetInput.PlaceholderText = "الاسم..."; TargetInput.TextColor3 = Color3.fromRGB(255, 255, 255); TargetInput.BackgroundColor3 = Color3.fromRGB(110, 0, 0); TargetInput.Font = Enum.Font.GothamBold; TargetInput.Parent = TargetBox; MakeRound(TargetInput, 5)
+local SelectTargetBtn = Instance.new("TextButton"); SelectTargetBtn.Size = UDim2.new(0, 30, 0, 30); SelectTargetBtn.Position = UDim2.new(0, 255, 0, 65); SelectTargetBtn.Text = "👆🏻"; SelectTargetBtn.BackgroundColor3 = Color3.fromRGB(130, 0, 0); SelectTargetBtn.Parent = TargetBox; MakeRound(SelectTargetBtn, 5)
+
+local CurrentTarget = nil
+local function UpdateTargetInfo(p)
+    if p and p:IsA("Player") and p.Name == "" or _G.BokaProtection and p == Player then 
+        SendBokaNotify("صاحب السكربت", "محمي من صاحب السكربت لو تبي مثله تعال افتح التكت") 
+        return 
+    end
+    CurrentTarget = p; _G.LastTargetName = p.Name; PlayerImage.Image = "rbxthumb://type=AvatarHeadShot&id="..p.UserId.."&w=150&h=150"; TargetNameLabel.Text = p.DisplayName
+    local d = os.date("!*t", os.time() - (p.AccountAge * 86400)); TargetDateLabel.Text = "تاريخ الانضمام: "..d.day.." / "..d.month.." / "..d.year
+end
+
+Players.PlayerRemoving:Connect(function(p)
+    if CurrentTarget and p.UserId == CurrentTarget.UserId then
+        local targetIcon = "rbxthumb://type=AvatarHeadShot&id="..p.UserId.."&w=150&h=150"
+        SendBokaNotify("B O K A  Team", "خرج الضحية من السيرفر", targetIcon)
+        CurrentTarget = nil; PlayerImage.Image = ""; TargetNameLabel.Text = "---"; TargetDateLabel.Text = "تاريخ الانضمام: -- / -- / --"
+    end
+end)
+
+Players.PlayerAdded:Connect(function(p)
+    if _G.LastTargetName ~= "" and (p.Name == _G.LastTargetName or p.DisplayName == _G.LastTargetName) then
+        UpdateTargetInfo(p)
+        local targetIcon = "rbxthumb://type=AvatarHeadShot&id="..p.UserId.."&w=150&h=150"
+        SendBokaNotify("B O K A  Team", "رجع الضحية من السيرفر", targetIcon)
+    end
+end)
+
+SelectTargetBtn.MouseButton1Click:Connect(function()
+    local Tool = Instance.new("Tool"); Tool.Name = "👆🏻"; Tool.RequiresHandle = false; Tool.Parent = Player.Backpack; SendBokaNotify("System BOKA", "تم إضافة أداة الاختيار، المس أو أشر على اللاعب")
+    local runCon
+    Tool.Equipped:Connect(function()
+        runCon = RunService.RenderStepped:Connect(function()
+            local target = Mouse.Target
+            if target and target.Parent:FindFirstChild("Humanoid") then
+                local p = Players:GetPlayerFromCharacter(target.Parent)
+                if p and p ~= CurrentTarget then UpdateTargetInfo(p) end
+            end
+        end)
+    end)
+    Tool.Unequipped:Connect(function() if runCon then runCon:Disconnect() end end)
+end)
+
+local function TargetAct(stat, type)
+    if CurrentTarget and (CurrentTarget == Player and _G.BokaProtection) then 
+        SendBokaNotify("صاحب السكربت", "محمي من صاحب السكربت لو تبي مثله تعال افتح التكت")
+        if stat then stat.Text = "🔴" end
+        return 
+    end
+    if type ~= "T1" and type ~= "T5" and not _G[type] then for t, s in pairs(TargetStats) do if t ~= "T1" and t ~= "T5" and t ~= type and _G[t] then _G[t] = false; if s then s.Text = "🔴" end end end end
+    local wasActive = _G[type]
+    _G[type] = not _G[type]
+    if stat then stat.Text = _G[type] and "🟢" or "🔴" end
+    if wasActive and not _G[type] then
+        if type == "T4" or type == "T3" then 
+            if Player.Character and Player.Character:FindFirstChild("Humanoid") then Player.Character.Humanoid.Sit = false end
+        elseif type == "T6" then 
+            if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+                if FlingOriginalPos then Player.Character.HumanoidRootPart.CFrame = FlingOriginalPos; FlingOriginalPos = nil end
+                Player.Character.Humanoid.PlatformStand = false
+            end
+        elseif type == "T2" then
+            if Player.Character and Player.Character:FindFirstChild("Humanoid") then for _, anim in pairs(Player.Character.Humanoid:GetPlayingAnimationTracks()) do anim:Stop() end end
+        end
+    end
+    if _G[type] and type == "T6" then if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then FlingOriginalPos = Player.Character.HumanoidRootPart.CFrame end end
+    task.spawn(function()
+        local oldCF = nil
+        while _G[type] do
+            RunService.Heartbeat:Wait()
+            if CurrentTarget and CurrentTarget.Character and Player.Character then
+                local tH = CurrentTarget.Character:FindFirstChild("HumanoidRootPart"); local mH = Player.Character:FindFirstChild("HumanoidRootPart")
+                if tH and mH then
+                    if type == "T1" then 
+                        local tool = Player.Character:FindFirstChildOfClass("Tool")
+                        if tool then 
+                            if not oldCF then oldCF = mH.CFrame end; workspace.CurrentCamera.CameraSubject = CurrentTarget.Character:FindFirstChild("Humanoid")
+                            local freq = 40; local dist = 10 + (math.sin(tick() * freq) * 11); mH.Velocity = Vector3.new(0,0,0); mH.CFrame = tH.CFrame * CFrame.new(0, 1.5, dist) 
+                        else if oldCF then mH.CFrame = oldCF; workspace.CurrentCamera.CameraSubject = Player.Character.Humanoid; oldCF = nil end end
+                    elseif type == "T2" then 
+                        for _, anim in pairs(Player.Character.Humanoid:GetPlayingAnimationTracks()) do anim:Stop() end
+                        local off = math.sin(tick() * 50) * 0.6; mH.CFrame = tH.CFrame * CFrame.new(0, 0, 0.7 + off)
+                    elseif type == "T3" then Player.Character.Humanoid.Sit = true; local freq = 20; local off = math.sin(tick() * freq) * 0.4; mH.CFrame = tH.CFrame * CFrame.new(0, -0.6, off) * CFrame.Angles(math.rad(-45), 0, 0)
+                    elseif type == "T4" then Player.Character.Humanoid.Sit = true; local freq = 80; local off = math.sin(tick() * freq) * 0.8; mH.CFrame = tH.CFrame * CFrame.new(0, 1.9, -1.2 + off) * CFrame.Angles(0, math.rad(180), 0)
+                    elseif type == "T6" then 
+                        Player.Character.Humanoid.PlatformStand = true; local rotation = (tick() * 1000000) % 360; local upDown = math.sin(tick() * 50) * 2
+                        mH.CFrame = tH.CFrame * CFrame.new(0, upDown, 1.5) * CFrame.Angles(math.rad(90), math.rad(rotation), 0); mH.Velocity = Vector3.new(0, 1000, 0)
+                    elseif type == "T5" then mH.CFrame = CFrame.new(mH.Position, Vector3.new(tH.Position.X, mH.Position.Y, tH.Position.Z))
+                    end
+                end
+            else break end
+        end
+        pcall(function() if type ~= "T5" then workspace.CurrentCamera.CameraSubject = Player.Character.Humanoid end end)
+    end)
+end
+
+TargetStats = {}
+local B6, S6 = CreateToggleBtn("فلنق", 115, MainContent)
+local B4, S4 = CreateToggleBtn("يمص", 160, MainContent)
+local B3, S3 = CreateToggleBtn("بانق عكسي", 205, MainContent)
+local B2, S2 = CreateToggleBtn("احم", 250, MainContent)
+
+local TP_Frame = Instance.new("Frame"); TP_Frame.Size = UDim2.new(1, -10, 0, 40); TP_Frame.Position = UDim2.new(0, 5, 0, 295); TP_Frame.BackgroundColor3 = Color3.fromRGB(90, 0, 0); TP_Frame.Parent = MainContent; MakeRound(TP_Frame, 6)
+local TP_Btn = Instance.new("TextButton"); TP_Btn.Size = UDim2.new(1, 0, 1, 0); TP_Btn.Text = "تنقل"; TP_Btn.TextColor3 = Color3.fromRGB(255, 255, 255); TP_Btn.Font = Enum.Font.GothamBold; TP_Btn.TextSize = 12; TP_Btn.BackgroundTransparency = 1; TP_Btn.Parent = TP_Frame
+TP_Btn.MouseButton1Click:Connect(function()
+    if CurrentTarget and (CurrentTarget == Player and _G.BokaProtection) then SendBokaNotify("صاحب السكربت", "محمي من صاحب السكربت لو تبي مثله تعال افتح التكت") return end
+    if CurrentTarget and CurrentTarget.Character and CurrentTarget.Character:FindFirstChild("HumanoidRootPart") then Player.Character.HumanoidRootPart.CFrame = CurrentTarget.Character.HumanoidRootPart.CFrame
+    else SendBokaNotify("System BOKA", "حدد ضحية أولاً!") end
+end)
+
+local B1, S1, F1 = CreateToggleBtn("إعطاء القنبلة", 340, MainContent)
+local B5, S5, F5 = CreateToggleBtn("التركيز عليه", 385, MainContent)
+
+TargetStats["T6"] = S6; TargetStats["T4"] = S4; TargetStats["T3"] = S3; TargetStats["T2"] = S2; TargetStats["T1"] = S1; TargetStats["T5"] = S5
+B6.MouseButton1Click:Connect(function() TargetAct(S6, "T6") end); B4.MouseButton1Click:Connect(function() TargetAct(S4, "T4") end); B3.MouseButton1Click:Connect(function() TargetAct(S3, "T3") end); B2.MouseButton1Click:Connect(function() TargetAct(S2, "T2") end); B1.MouseButton1Click:Connect(function() TargetAct(S1, "T1") end); B5.MouseButton1Click:Connect(function() TargetAct(S5, "T5") end)
+if BombSupportedMaps[game.PlaceId] then AddMapHint(F1); AddMapHint(F5) else F1.Visible = false; F5.Visible = false end
+
+local SpeedInput = Instance.new("TextBox"); SpeedInput.Size = UDim2.new(0, 120, 0, 30); SpeedInput.Position = UDim2.new(0, 5, 0, 5); SpeedInput.PlaceholderText = "أدخل السرعة..."; SpeedInput.TextColor3 = Color3.fromRGB(255, 255, 255); SpeedInput.BackgroundColor3 = Color3.fromRGB(90, 0, 0); SpeedInput.Font = Enum.Font.GothamBold; SpeedInput.Parent = PlayerContent; MakeRound(SpeedInput, 5)
+local SpeedUpdateBtn = CreateActionBtn("تحديث السرعة", 40, PlayerContent, 0.35); SpeedUpdateBtn.MouseButton1Click:Connect(function() _G.CustomSpeed = tonumber(SpeedInput.Text) or 16 end)
+local JumpInput = Instance.new("TextBox"); JumpInput.Size = UDim2.new(0, 120, 0, 30); JumpInput.Position = UDim2.new(0, 135, 0, 5); JumpInput.PlaceholderText = "أدخل القفزة..."; JumpInput.TextColor3 = Color3.fromRGB(255, 255, 255); JumpInput.BackgroundColor3 = Color3.fromRGB(90, 0, 0); JumpInput.Font = Enum.Font.GothamBold; JumpInput.Parent = PlayerContent; MakeRound(JumpInput, 5)
+local JumpUpdateBtn = CreateActionBtn("تحديث القفزة", 40, PlayerContent, 0.35); JumpUpdateBtn.Position = UDim2.new(0, 135, 0, 40); JumpUpdateBtn.MouseButton1Click:Connect(function() _G.CustomJump = tonumber(JumpInput.Text) or 50 end)
+local NoBtn, NoStat = CreateToggleBtn("اختراق الجدران", 85, PlayerContent); NoBtn.MouseButton1Click:Connect(function() _G.Noclip = not _G.Noclip; NoStat.Text = _G.Noclip and "🟢" or "🔴" end)
+local JumpBtn, JumpStat = CreateToggleBtn("قفز لا نهائي", 130, PlayerContent); JumpBtn.MouseButton1Click:Connect(function() _G.InfJump = not _G.InfJump; JumpStat.Text = _G.InfJump and "🟢" or "🔴" end)
+
+-- [ تعديل زر هيدلس ليكون بنفس حجم ولون زر "تنقل" ]
+local HeadlessFrame = Instance.new("Frame"); HeadlessFrame.Size = UDim2.new(1, -10, 0, 40); HeadlessFrame.Position = UDim2.new(0, 5, 0, 220); HeadlessFrame.BackgroundColor3 = Color3.fromRGB(90, 0, 0); HeadlessFrame.Parent = PlayerContent; MakeRound(HeadlessFrame, 6)
+local HeadlessBtn = Instance.new("TextButton"); HeadlessBtn.Size = UDim2.new(1, 0, 1, 0); HeadlessBtn.Text = "هيدلس"; HeadlessBtn.TextColor3 = Color3.fromRGB(255, 255, 255); HeadlessBtn.Font = Enum.Font.GothamBold; HeadlessBtn.TextSize = 12; HeadlessBtn.BackgroundTransparency = 1; HeadlessBtn.Parent = HeadlessFrame
+HeadlessBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://gist.githubusercontent.com/mbark-hub/b3f9eb1acacf4995ddf61bdb3ae72b90/raw/15c176a125a521b4cd215aca5c30b7c0627ba5dd/gistfile1.txt"))()
+    SendBokaNotify("Syteam TRX | HUB ", "تم تفعيل الهيدلس")
+end)
+
+local GhostModeBtn, GhostModeStat = CreateToggleBtn("اختفاء", 175, PlayerContent); 
+local ActiveGhost = nil; 
+
+GhostModeBtn.MouseButton1Click:Connect(function()
+    _G.GhostMode = not _G.GhostMode; 
+    GhostModeStat.Text = _G.GhostMode and "🟢" or "🔴"; 
+    local char = Player.Character; 
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end; 
+    local hrp = char.HumanoidRootPart
+    if _G.GhostMode then
+        char.Archivable = true; ActiveGhost = char:Clone(); char.Archivable = false
+        ActiveGhost.Name = "BokaGhost_Body"; ActiveGhost.Parent = workspace
+        for _, part in pairs(ActiveGhost:GetDescendants()) do
+            if part:IsA("BasePart") then part.Transparency = 0.5; part.CanCollide = false
+            elseif part:IsA("Decal") or part:IsA("Texture") then part.Transparency = 0.5 end
+        end
+        local gHum = ActiveGhost:FindFirstChildOfClass("Humanoid"); local gHrp = ActiveGhost:FindFirstChild("HumanoidRootPart")
+        
+        for _, anim in pairs(gHum:GetPlayingAnimationTracks()) do anim:Stop() end
+        gHum.WalkSpeed = 23; _G.OriginalPos = hrp.CFrame; hrp.CFrame = CFrame.new(0, 9999, 0)
+        
+        task.spawn(function()
+            while _G.GhostMode do
+                RunService.RenderStepped:Wait()
+                if ActiveGhost and gHum and char:FindFirstChild("Humanoid") then
+                    local realHum = char.Humanoid
+                    gHum:Move(realHum.MoveDirection, false)
+                    workspace.CurrentCamera.CameraSubject = gHum; hrp.CFrame = gHrp.CFrame * CFrame.new(0, 9999, 0)
+                    for _, anim in pairs(gHum:GetPlayingAnimationTracks()) do anim:Stop() end
+                else break end
+            end
+            if ActiveGhost and ActiveGhost:FindFirstChild("HumanoidRootPart") then
+                local finalPos = ActiveGhost.HumanoidRootPart.CFrame; ActiveGhost:Destroy(); ActiveGhost = nil
+                hrp.Velocity = Vector3.new(0,0,0); hrp.CFrame = finalPos; workspace.CurrentCamera.CameraSubject = char.Humanoid
+            end
+        end)
+        local jumpCon; jumpCon = UserInputService.JumpRequest:Connect(function()
+            if _G.GhostMode and gHum then gHum.Jump = true else jumpCon:Disconnect() end
+        end)
+    end
+end)
+
+local SpamBtn, SpamStat = CreateToggleBtn("تفعيل سبام", 5, TrollContent)
+SpamBtn.MouseButton1Click:Connect(function() 
+    _G.BSpam = not _G.BSpam; SpamStat.Text = _G.BSpam and "🟢" or "🔴"
+    task.spawn(function() while _G.BSpam do task.wait(0.5) local msg = "BOKA ON TOP 🤫"; if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then local channel = TextChatService.TextChannels:FindFirstChild("RBXGeneral") if channel then channel:SendAsync(msg) end else ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(msg, "All") end end end) 
+end)
+
+local PullBtn, PullStat, PullFrame = CreateToggleBtn("سحب الناس", 50, TrollContent)
+local AntiBombBtn, AntiBombStat, AF2 = CreateToggleBtn("مضاد القنبلة", 50, TrollContent)
+local ChaletTag = Instance.new("TextLabel"); ChaletTag.Size = UDim2.new(0, 100, 0, 20); ChaletTag.Position = UDim2.new(0, 5, 1, -22); ChaletTag.Text = " شاليه محمد"; ChaletTag.TextColor3 = Color3.fromRGB(0, 255, 0); ChaletTag.Font = Enum.Font.GothamBold; ChaletTag.TextSize = 10; ChaletTag.BackgroundTransparency = 1; ChaletTag.Parent = PullFrame
+
+_G.PullPeople = false
+PullBtn.MouseButton1Click:Connect(function()
+    _G.PullPeople = not _G.PullPeople; PullStat.Text = _G.PullPeople and "🟢" or "🔴"
+    task.spawn(function()
+        while _G.PullPeople do
+            RunService.Heartbeat:Wait()
+            local tool = Player.Backpack:FindFirstChild("كلبشة النجوم") or Player.Character:FindFirstChild("كلبشة النجوم") or Player.Backpack:FindFirstChild("كلبشة") or Player.Character:FindFirstChild("كلبشة") or Player.Backpack:FindFirstChild("كلبشه") or Player.Character:FindFirstChild("كلبشه")
+            if tool then
+                if tool.Parent == Player.Backpack then tool.Parent = Player.Character end
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        pcall(function() tool:Activate(); local remote = tool:FindFirstChildOfClass("RemoteEvent"); if remote then for i = 1, 5 do remote:FireServer(p.Character.HumanoidRootPart) end end end)
+                    end
+                end
+            end
+        end
+    end)
+end)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        local toolExists = Player.Backpack:FindFirstChild("كلبشة النجوم") or Player.Backpack:FindFirstChild("كلبشة") or Player.Backpack:FindFirstChild("كلبشه") or Player.Character:FindFirstChild("كلبشة النجوم") or Player.Character:FindFirstChild("كلبشة") or Player.Character:FindFirstChild("كلبشه")
+        if toolExists and not BombSupportedMaps[game.PlaceId] then PullFrame.Visible = true; AF2.Visible = false
+        elseif BombSupportedMaps[game.PlaceId] then PullFrame.Visible = false; AF2.Visible = true; AddMapHint(AF2)
+        else PullFrame.Visible = false; AF2.Visible = false end
+    end
+end)
+
+AntiBombBtn.MouseButton1Click:Connect(function()
+    _G.AntiBomb = not _G.AntiBomb; AntiBombStat.Text = _G.AntiBomb and "🟢" or "🔴"; local char = Player.Character; local hum = char.Humanoid; local hrp = char.HumanoidRootPart
+    if _G.AntiBomb then hrp.CFrame = hrp.CFrame * CFrame.Angles(math.rad(90), 0, 0); hum.PlatformStand = true
+        task.spawn(function() while _G.AntiBomb do RunService.Heartbeat:Wait() if hum.MoveDirection.Magnitude > 0 then hrp.Velocity = (hum.MoveDirection * _G.CustomSpeed) + Vector3.new(0, hrp.Velocity.Y, 0) end hrp.RotVelocity = Vector3.new(0,0,0) end end)
+    else hum.PlatformStand = false; hrp.CFrame = hrp.CFrame * CFrame.Angles(math.rad(-90), 0, 0) end
+end)
+
+CreateActionBtn("إعادة دخول", 5, OtherContent, 0.6).MouseButton1Click:Connect(function() TeleportService:Teleport(game.PlaceId) end)
+CreateActionBtn("تغيير السيرفر", 45, OtherContent, 0.6).MouseButton1Click:Connect(function()
+    local Servers = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+    for _, s in pairs(Servers.data) do if s.playing < s.maxPlayers and s.id ~= game.JobId then TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, Player); break end end end)
+
+local FPSBoostBtn = CreateActionBtn("تحسين الفريمات", 85, OtherContent, 0.6)
+FPSBoostBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://gist.githubusercontent.com/mbark-hub/79dc4a609ff5c642fbe94784267b63cb/raw/0e61e961ee3bdfa85e8923a14c16c73459bc3415/gistfile1.txt"))()
+end)
+
+TargetInput:GetPropertyChangedSignal("Text"):Connect(function() 
+    local name = TargetInput.Text:lower()
+    if name ~= "" then for _, p in pairs(Players:GetPlayers()) do if (p.Name:lower():find(name) or p.DisplayName:lower():find(name)) then UpdateTargetInfo(p); break end end end 
+end)
+
+RunService.Heartbeat:Connect(function(delta) pcall(function() if not _G.GhostMode then local char = Player.Character; local hum = char.Humanoid; local hrp = char.HumanoidRootPart; if hum and hrp then hum.UseJumpPower = true; hum.JumpPower = _G.CustomJump; if hum.MoveDirection.Magnitude > 0 then local moveSpeed = _G.CustomSpeed - 16; if moveSpeed > 0 then hrp.CFrame = hrp.CFrame + (hum.MoveDirection * (moveSpeed * delta)) end end end end end) end)
+RunService.Stepped:Connect(function() if _G.Noclip and Player.Character then for _, part in pairs(Player.Character:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = false end end end end)
+UserInputService.JumpRequest:Connect(function() if _G.InfJump and Player.Character then Player.Character.Humanoid:ChangeState("Jumping") end end)
+
+local function ShowTab(tab) HomeContent.Visible = (tab == "Home"); MainContent.Visible = (tab == "Main"); PlayerContent.Visible = (tab == "Player"); TrollContent.Visible = (tab == "Troll"); OtherContent.Visible = (tab == "Other"); RewardsContent.Visible = (tab == "Rewards") end
+HomeTabBtn.MouseButton1Click:Connect(function() ShowTab("Home") end); MainTabBtn.MouseButton1Click:Connect(function() ShowTab("Main") end); PlayerTabBtn.MouseButton1Click:Connect(function() ShowTab("Player") end); TrollTabBtn.MouseButton1Click:Connect(function() ShowTab("Troll") end); OtherTabBtn.MouseButton1Click:Connect(function() ShowTab("Other") end); RewardsTabBtn.MouseButton1Click:Connect(function() ShowTab("Rewards") end)
+
+GhostBtn.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
+UserInputService.InputBegan:Connect(function(input, gpe) if not gpe and input.KeyCode == Enum.KeyCode.F then MainFrame.Visible = not MainFrame.Visible end end)
